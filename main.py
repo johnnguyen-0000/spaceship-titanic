@@ -165,7 +165,9 @@ stitanic_data['Transported'] = stitanic_data['Transported'].replace([False,True]
  
 #correlation analysis
 stitanic_cor = stitanic_data.corr(method='pearson')
-#print(stitanic_cor)
+plt.figure(figsize=(len (stitanic_data.columns) ,len (stitanic_data.columns)))
+plt.title( "correlation analysis")
+sns.heatmap(data=stitanic_cor, annot=True)
 
 
 #count = 0 
@@ -178,14 +180,22 @@ stitanic_cor = stitanic_data.corr(method='pearson')
 #           print ( " - " , str(stitanic_cor[coll][row]) , end = '\n')
     
 #print (" count = " , str(count) )
+
+
 #algorithm
 
 
-
 #metric accuracy
+
+from sklearn.metrics import accuracy_score
+
+
 #split data into train and test (8:2)
 
 from sklearn.model_selection import train_test_split
+
+
+
 stitanic_data_base =  [ item for item in stitanic_data.columns if item != 'Transported' and item != 'PassengerId' ]
 X = stitanic_data[stitanic_data_base] 
 y = stitanic_data['Transported']
@@ -194,33 +204,28 @@ X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2 , random_state 
 #logistic regression
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
 
 model_logistic = LogisticRegression()
 model_logistic.fit(X_train, y_train)
-predict_train = model_logistic.predict(X_train)
-predict_test = model_logistic.predict(X_test) 
-train_log_pt = accuracy_score (predict_train , y_train )
-test_log_pt = accuracy_score (predict_test , y_test )
+predict_log_train = model_logistic.predict(X_train)
+predict_log_test = model_logistic.predict(X_test) 
+train_log_pt = accuracy_score (predict_log_train , y_train )
+test_log_pt = accuracy_score (predict_log_test , y_test )
 print ( train_log_pt, test_log_pt , sep = '\n')
-
-
-
-
-#from sklearn.linear_model import LogisticRegression
-
-
-
-
-
-
-
 
 
 # 
 
 #decision tree 
+from sklearn.tree import DecisionTreeClassifier
 
+model_tree = DecisionTreeClassifier(random_state = 1)
+model_tree.fit(X_train , y_train)
+predict_tree_train = model_tree.predict(X_train)
+predict_tree_test= model_tree.predict(X_test)
+train_tree_pt = accuracy_score(predict_tree_train)
+test_tree_pt = accuracy_score(predict_tree_test)
+print ( train_tree_pt , test_tree_pt , sep = '\n')
 
 
 #print(stitanic_data['Transported'].head())
