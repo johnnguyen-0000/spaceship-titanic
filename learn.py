@@ -1,19 +1,22 @@
-# Import pandas package
-import pandas as pd
 
-# create a dictionary with five fields each
-data = {
-	'A': ['A1', 'A2', 'A3', 'A4', 'A5'],
-	'B': ['B1', 'B2', 'B3', 'B4', 'B5'],
-	'C': ['C1', 'C2', 'C3', 'C4', 'C5'],
-	'D': ['D1', 'D2', 'D3', 'D4', 'D5'],
-	'E': ['E1', 'E2', 'E3', 'E4', 'E5']}
-
-# Convert the dictionary into DataFrame
-df = pd.DataFrame(data)
-
-# Remove two columns name is 'C' and 'D'
-del df["C"]
-
-# df.drop(columns =['C', 'D'])
-print(df)
+# import the necessary libraries
+import sklearn 
+from sklearn.datasets import load_breast_cancer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+# load the breast cancer dataset
+X, y = load_breast_cancer(return_X_y=True)
+# split the train and test dataset
+X_train, X_test,\
+    y_train, y_test = train_test_split(X, y,
+                                       test_size=0.20,
+                                       random_state=23)
+# LogisticRegression
+clf = LogisticRegression(random_state=0)
+clf.fit(X_train, y_train)
+# Prediction
+y_pred = clf.predict(X_test)
+ 
+acc = accuracy_score(y_test, y_pred)
+print("Logistic Regression model accuracy (in %):", acc*100)

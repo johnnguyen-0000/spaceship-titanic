@@ -1,9 +1,9 @@
-import pandas as pd  #clean data
-import numpy as np   #clean data
+import pandas as pd  
 import matplotlib.pyplot as plt
 #import sklearn 
 import seaborn as sns
 import scipy 
+import numpy as np
 
 #load data 
 stitanic_test_file_path = 'test.csv'
@@ -155,18 +155,67 @@ stitanic_data['VRDeck'] = stitanic_data['VRDeck'].fillna(stitanic_data['VRDeck']
 #drop
 del stitanic_data["Name"]
 
+#Transported
+stitanic_data['Transported'] = stitanic_data['Transported'].replace([False,True],[ 0 , 1 ])
 
-        
+
 #xem data có make sense ko
 #plot 3 variables
 
  
 #correlation analysis
+stitanic_cor = stitanic_data.corr(method='pearson')
+#print(stitanic_cor)
 
+
+#count = 0 
+#stitanic_cor.columns :
+#for coll in stitanic_cor.columns :
+#    for row in stitanic_cor.columns : #range (len (stitanic_cor[coll]) ) :
+#       if stitanic_cor[coll][row] >= 0.3 and stitanic_cor[coll][row] != 1:
+#           count += 1
+#           print ( coll , row , sep = ' ')
+#           print ( " - " , str(stitanic_cor[coll][row]) , end = '\n')
+    
+#print (" count = " , str(count) )
 #algorithm
+
+
+
 #metric accuracy
 #split data into train and test (8:2)
+
+from sklearn.model_selection import train_test_split
+stitanic_data_base =  [ item for item in stitanic_data.columns if item != 'Transported' and item != 'PassengerId' ]
+X = stitanic_data[stitanic_data_base] 
+y = stitanic_data['Transported']
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2 , random_state = 42)
+
 #logistic regression
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+model_logistic = LogisticRegression()
+model_logistic.fit(X_train, y_train)
+predict_train = model_logistic.predict(X_train)
+predict_test = model_logistic.predict(X_test) 
+train_log_pt = accuracy_score (predict_train , y_train )
+test_log_pt = accuracy_score (predict_test , y_test )
+print ( train_log_pt, test_log_pt , sep = '\n')
+
+
+
+
+#from sklearn.linear_model import LogisticRegression
+
+
+
+
+
+
+
+
 
 # 
 
@@ -174,8 +223,7 @@ del stitanic_data["Name"]
 
 
 
-#print(stitanic_data.head())
+#print(stitanic_data['Transported'].head())
 #print (stitanic_data.describe()) 
 #missing_cnt = stitanic_data.isnull().sum()
 #print(missing_cnt)
-print(stitanic_data.head())
