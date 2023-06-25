@@ -1,0 +1,85 @@
+import pandas as pd  
+import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy 
+import numpy as np
+
+stitanic_test_file_path = 'test.csv'
+df_test = pd.read_csv(stitanic_test_file_path)
+#
+#Home Planet
+#print(df_test['HomePlanet'].value_counts()) # earth nhiều nhất
+df_test['HomePlanet'] = df_test['HomePlanet'].fillna("Earth")
+df_homeplanet = pd.get_dummies(df_test['HomePlanet'] , dtype = float)
+df_test = pd.concat([df_test , df_homeplanet] ,axis = 1) 
+del df_test['HomePlanet'] 
+
+#Cyro Sleep
+#print(df_test['CyroSleep'].value_counts())
+# False nhiều hơn
+df_test['CryoSleep'] = df_test['CryoSleep'].fillna(0)
+df_test['CryoSleep'] = df_test['CryoSleep'].replace([False,True],[ 0 , 1 ])
+
+
+#Cabin
+#split -> deck , num , side 
+df_test['C_Deck'] = df_test['Cabin'].str[0] 
+df_test['C_Num'] = df_test['Cabin'].str[2 : -2]
+df_test['C_Side'] = df_test['Cabin'].str[-1]
+
+#fill
+# F G  E  B  C  D  A  T
+#print(df_test['C_Deck'].value_counts())
+
+#fill
+df_test['C_Deck'] = df_test['C_Deck'].fillna("F")
+df_test['C_Num'] = df_test['C_Num'].fillna() # fill with median or số xuất hiện nhiều nhất
+df_test['C_Side'] = df_test['C_Side'].fillna("S") # fill S hay random vì S 2093 P 2084
+
+#
+df_deck = pd.get_dummies(df_test['C_Deck'], prefix = "C_Deck", dtype = float)
+df_test = pd.concat([df_test , df_deck],axis = 1) 
+ 
+df_side = pd.get_dummies(df_test['C_Side'], prefix = "C_Side", dtype = float) # có nên để trong 1 cột ko ?
+df_test = pd.concat([df_test , df_side],axis = 1) 
+
+#drop col
+del df_test['Cabin']
+del df_test['C_Deck']
+del df_test['C_Side']
+
+#Destination 
+df_test['Destination'] = df_test['Destination'].fillna('TRAPPIST-1e')
+df_destination = pd.get_dummies(df_test['Destination'], dtype = float)
+df_test = pd.concat([df_test , df_destination],axis = 1) 
+del df_test['Destination']
+
+#Age
+df_test['Age'] = df_test['Age'].fillna(df_test['Age'].median())
+
+#Vip 
+df_test['VIP'] = df_test['VIP'].fillna(0)
+df_test['VIP'] = df_test['VIP'].replace([False,True],[ 0 , 1 ])
+
+#Room Service 
+df_test['RoomService'] = df_test['RoomService'].fillna(df_test['RoomService'].median())
+
+#FoodCourt
+df_test['FoodCourt'] = df_test['FoodCourt'].fillna(df_test['FoodCourt'].median())
+
+#ShoppingMall
+df_test['ShoppingMall'] = df_test['ShoppingMall'].fillna (df_test['ShoppingMall'].median())
+
+#Spa
+df_test['Spa'] = df_test['Spa'].fillna( df_test['Spa'].median() )
+
+#VRDeck
+df_test['VRDeck'] = df_test['VRDeck'].fillna( df_test['VRDeck'].median() )
+
+#Name
+del df_test['Name']
+
+
+print (df_test.head()) 
+missing_cnt = df_test.isnull().sum()
+print(missing_cnt)

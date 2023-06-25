@@ -10,8 +10,6 @@ stitanic_test_file_path = 'test.csv'
 stitanic_train_file_path = 'train.csv'
 
 stitanic_data = pd.read_csv(stitanic_train_file_path)
-df_test = pd.read_csv(stitanic_test_file_path)
-
 
 #clean and explore data
 
@@ -25,18 +23,20 @@ df_test = pd.read_csv(stitanic_test_file_path)
 #drop oldcol
 
 stitanic_data['HomePlanet'] = stitanic_data['HomePlanet'].fillna("Earth")
-stitanic_homeplanet = pd.get_dummies(stitanic_data['HomePlanet'] , dtype = float)
-stitanic_data = pd.concat([stitanic_data , stitanic_homeplanet ] ,axis = 1)
+
+#tạo col Earth
+stitanic_data['Earth'] = stitanic_data['HomePlanet']
+stitanic_data['Earth'] = stitanic_data['Earth'].replace(['Earth','Mars','Europa'] , [ 1, 0 , 0] ) 
+#tạo col Mars 
+stitanic_data['Mars'] = stitanic_data['HomePlanet']
+stitanic_data['Mars'] = stitanic_data['Mars'].replace(['Earth','Mars','Europa'] , [ 0, 1 , 0] )
+#tạo col Europa 
+stitanic_data['Europa'] = stitanic_data['HomePlanet']
+stitanic_data['Europa'] = stitanic_data['Europa'].replace(['Earth','Mars','Europa'] , [ 0, 0 , 1] )
+#drop oldcol
 del stitanic_data["HomePlanet"]
 
-#test
-df_test['HomePlanet'] = df_test['HomePlanet'].fillna("Earth")
-df_homeplanet = pd.get_dummies(df_test['HomePlanet'] , dtype = float)
-df_test = pd.concat([df_test , df_homeplanet] ,axis = 1) 
-del df_test['HomePlanet'] 
-
-
-#stitanic_data = pd.concat([stitanic_data, pd.get_dummies(stitanic_data['HomePlanet'] , dtype = float) ], axis=1 )
+stitanic_data = pd.concat([stitanic_data, pd.get_dummies(stitanic_data['HomePlanet'] , dtype = float) ], axis=1 )
 
 #cryosleep
 #class bool 
@@ -46,9 +46,6 @@ del df_test['HomePlanet']
 #replace  nan = 0 
 stitanic_data['CryoSleep'] = stitanic_data['CryoSleep'].fillna(0)
 stitanic_data['CryoSleep'] = stitanic_data['CryoSleep'].replace([False,True],[ 0 , 1 ])
-#test
-df_test['CryoSleep'] = df_test['CryoSleep'].fillna(0)
-df_test['CryoSleep'] = df_test['CryoSleep'].replace([False,True],[ 0 , 1 ])
 
 
 
@@ -68,47 +65,30 @@ stitanic_data['C_Side'] = stitanic_data['Cabin'].str[-1]
 
 #fill num
 stitanic_data['C_Deck'] = stitanic_data['C_Deck'].fillna("F")
-stitanic_data['C_Num'] = stitanic_data['C_Num'].fillna(stitanic_data['C_Num'].median()) # fill with median or số xuất hiện nhiều nhất
+stitanic_data['C_Num'] = stitanic_data['C_Num'].fillna(stitanic_data['C_Num'].median())
 stitanic_data['C_Side'] = stitanic_data['C_Side'].fillna("S")
 #new col deck_f
+stitanic_data['C_Deck_F'] = stitanic_data['C_Deck']
+stitanic_data['C_Deck_F'] = stitanic_data['C_Deck_F'].replace(['F','G','E','B','C','D','A','T'] , [1, 0 , 0 , 0 , 0 , 0 , 0 , 0])
+#new col deck_g
+stitanic_data['C_Deck_G'] = stitanic_data['C_Deck']
+stitanic_data['C_Deck_G'] = stitanic_data['C_Deck_G'].replace(['F','G','E','B','C','D','A','T'] , [0, 1 , 0 , 0 , 0 , 0 , 0 , 0])
+#new col deck_other 
+stitanic_data['C_Deck_Other'] = stitanic_data['C_Deck']
+stitanic_data['C_Deck_Other'] = stitanic_data['C_Deck_Other'].replace(['F','G','E','B','C','D','A','T'] , [0, 0 , 1 , 1 , 1 , 1 , 1 , 1])
 
-stitanic_deck = pd.get_dummies(stitanic_data['C_Deck'], prefix = "C_Deck" , dtype = float)
-stitanic_data = pd.concat([stitanic_data , stitanic_deck ] ,axis = 1)
-
-stitanic_side = pd.get_dummies(stitanic_data['C_Side'], prefix = "C_Side" , dtype = float)
-stitanic_data = pd.concat([stitanic_data , stitanic_side] ,axis = 1)
+#new col side S
+stitanic_data['C_Side_S'] = stitanic_data['C_Side']
+stitanic_data['C_Side_S'] = stitanic_data['C_Side_S'].replace(['S','P'] , [1 , 0])
+#new col side P 
+stitanic_data['C_Side_P'] = stitanic_data['C_Side']
+stitanic_data['C_Side_P'] = stitanic_data['C_Side_P'].replace(['S','P'] , [0 , 1])
 
 #drop col
 del stitanic_data['Cabin']
 del stitanic_data['C_Deck']
 del stitanic_data['C_Side']
 
-#test
-#split -> deck , num , side 
-df_test['C_Deck'] = df_test['Cabin'].str[0] 
-df_test['C_Num'] = df_test['Cabin'].str[2 : -2]
-df_test['C_Side'] = df_test['Cabin'].str[-1]
-
-#fill
-# F G  E  B  C  D  A  T
-#print(df_test['C_Deck'].value_counts())
-
-#fill
-df_test['C_Deck'] = df_test['C_Deck'].fillna("F")
-df_test['C_Num'] = df_test['C_Num'].fillna(df_test['C_Num'].median()) # fill with median or số xuất hiện nhiều nhất
-df_test['C_Side'] = df_test['C_Side'].fillna("S") # fill S hay random vì S 2093 P 2084
-
-#
-df_deck = pd.get_dummies(df_test['C_Deck'], prefix = "C_Deck", dtype = float)
-df_test = pd.concat([df_test , df_deck],axis = 1) 
- 
-df_side = pd.get_dummies(df_test['C_Side'], prefix = "C_Side", dtype = float) # có nên để trong 1 cột ko ?
-df_test = pd.concat([df_test , df_side],axis = 1) 
-
-#drop col
-del df_test['Cabin']
-del df_test['C_Deck']
-del df_test['C_Side']
 
 
 #Destination
@@ -120,20 +100,23 @@ del df_test['C_Side']
 #drop oldcol
 
 stitanic_data['Destination'] = stitanic_data['Destination'].fillna('TRAPPIST-1e')
-stitanic_destination = pd.get_dummies(stitanic_data['Destination'], dtype = float)
-stitanic_data = pd.concat([stitanic_data ,stitanic_destination ],axis = 1) 
-del stitanic_data['Destination']
+#newcol Trap
+stitanic_data['TRAPPIST-1e'] = stitanic_data['Destination'] 
+stitanic_data['TRAPPIST-1e'] = stitanic_data['TRAPPIST-1e'].replace(['TRAPPIST-1e','55 Cancri e','PSO J318.5-22'] , [1,0 ,0])
+#newcol Cancri 
+stitanic_data['55 Cancri e'] = stitanic_data['Destination']
+stitanic_data['55 Cancri e'] = stitanic_data['55 Cancri e'].replace(['TRAPPIST-1e','55 Cancri e','PSO J318.5-22'] , [0,1,0])
+#newcol PSO 
+stitanic_data['PSO J318.5-22'] = stitanic_data['Destination']
+stitanic_data['PSO J318.5-22'] = stitanic_data['PSO J318.5-22'].replace(['TRAPPIST-1e','55 Cancri e','PSO J318.5-22'] , [0,0,1])
+#drop oldcol
+del stitanic_data["Destination"]
 
-#test
-df_test['Destination'] = df_test['Destination'].fillna('TRAPPIST-1e')
-df_destination = pd.get_dummies(df_test['Destination'], dtype = float)
-df_test = pd.concat([df_test , df_destination],axis = 1) 
-del df_test['Destination']
 
 #Age
 #class int
 stitanic_data['Age'] = stitanic_data['Age'].fillna(stitanic_data['Age'].median())
-df_test['Age'] = df_test['Age'].fillna(df_test['Age'].median())
+
 
 #Vip
 #class bool
@@ -141,40 +124,35 @@ df_test['Age'] = df_test['Age'].fillna(df_test['Age'].median())
 #print( stitanic_data['VIP'].value_counts())  false > true 
 stitanic_data['VIP'] = stitanic_data['VIP'].fillna(0)
 stitanic_data['VIP'] = stitanic_data['VIP'].replace([False,True],[ 0 , 1 ])
-df_test['VIP'] = df_test['VIP'].fillna(0)
-df_test['VIP'] = df_test['VIP'].replace([False,True],[ 0 , 1 ])
 
 
 #RoomService 
 #class int
 stitanic_data['RoomService'] = stitanic_data['RoomService'].fillna(stitanic_data['RoomService'].median())
-df_test['RoomService'] = df_test['RoomService'].fillna(df_test['RoomService'].median())
+
 
 #FoodCourt
 #class int
 stitanic_data['FoodCourt'] = stitanic_data['FoodCourt'].fillna(stitanic_data['FoodCourt'].median())
-df_test['FoodCourt'] = df_test['FoodCourt'].fillna(df_test['FoodCourt'].median())
+
 
 #ShoppingMall
 #class int
 stitanic_data['ShoppingMall'] = stitanic_data['ShoppingMall'].fillna(stitanic_data['ShoppingMall'].median())
-df_test['ShoppingMall'] = df_test['ShoppingMall'].fillna (df_test['ShoppingMall'].median())
+
 
 #Spa
 #class int
 stitanic_data['Spa'] = stitanic_data['Spa'].fillna(stitanic_data['Spa'].median())
-df_test['Spa'] = df_test['Spa'].fillna( df_test['Spa'].median() )
 
 #VRDeck
 
 stitanic_data['VRDeck'] = stitanic_data['VRDeck'].fillna(stitanic_data['VRDeck'].median())
-df_test['VRDeck'] = df_test['VRDeck'].fillna( df_test['VRDeck'].median() )
+
 
 #Name
 #drop
 del stitanic_data["Name"]
-del df_test['Name']
-
 
 #Transported
 stitanic_data['Transported'] = stitanic_data['Transported'].replace([False,True],[ 0 , 1 ])
@@ -215,29 +193,30 @@ from sklearn.metrics import accuracy_score
 
 from sklearn.model_selection import train_test_split
 
-stitanic_data_base =  [ item for item in stitanic_data.columns if item != 'Transported' and item != 'PassengerId']
+
+
+stitanic_data_base =  [ item for item in stitanic_data.columns if item != 'Transported' and item != 'PassengerId' ]
 X = stitanic_data[stitanic_data_base] 
 
 y = stitanic_data['Transported']
 X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2 , random_state = 42)
 
 #logistic regression
+'''
 from sklearn.linear_model import LogisticRegression
 
 model_logistic = LogisticRegression()
 model_logistic.fit(X_train, y_train)
 predict_log_train = model_logistic.predict(X_train)
 predict_log_test = model_logistic.predict(X_test) 
-#predict_ans = model_logistic.predict(df_test)
 train_log_pt = accuracy_score (predict_log_train , y_train )
 test_log_pt = accuracy_score (predict_log_test , y_test )
-print ( train_log_pt, test_log_pt , sep = '\n')
+#print ( train_log_pt, test_log_pt , sep = '\n')
 
 
 # 
 
 #decision tree 
-'''
 from sklearn.tree import DecisionTreeClassifier
 
 model_tree = DecisionTreeClassifier( max_depth = 5, random_state = 1)
@@ -246,18 +225,13 @@ predict_tree_train = model_tree.predict(X_train)
 predict_tree_test= model_tree.predict(X_test)
 train_tree_pt = accuracy_score(predict_tree_train , y_train)
 test_tree_pt = accuracy_score(predict_tree_test , y_test)
-print ( train_tree_pt , test_tree_pt , sep = '\n')
+#print ( train_tree_pt , test_tree_pt , sep = '\n')
 '''
-
 #submission 
-#choosing model 
-
-#predict_ans = model_logistic.predict(df_test)
-#print(predict_ans)
 
 
 
-#missing_cnt = stitanic_data.isnull().sum()
+
 
 #print(stitanic_data['Transported'].head())
 #print (stitanic_data.describe()) 
